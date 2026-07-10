@@ -19,10 +19,16 @@ execute: |
     while [ $SECONDS -lt $deadline ]; do
         if IFS= read -r -t 1 line <&${MCP[0]}; then
             echo "$line"
-            case "$line" in
-                *'"id":1'*) found_initialize=true ;;
-                *'"id":2'*'"results"'*) found_search=true; break ;;
-            esac
+            id="$(printf '%s\n' "$line" | jq -r '.id // empty')"
+
+            if [ "$id" = "1" ]; then
+                found_initialize=true
+            fi
+
+            if [ "$id" = "2" ] && printf '%s\n' "$line" | jq -e '.result.content[0].text | fromjson | .results | length >= 1' >/dev/null; then
+                found_search=true
+                break
+            fi
         fi
     done
 
