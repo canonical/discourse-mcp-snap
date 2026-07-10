@@ -1,0 +1,60 @@
+#!/bin/bash
+set -eu
+
+get_config() {
+    snapctl get "$1" 2>/dev/null || true
+}
+
+args=()
+
+add_value_config() {
+    key="$1"
+    flag="$2"
+    value="$(get_config "$key")"
+
+    if [ -n "$value" ]; then
+        args+=("$flag" "$value")
+    fi
+}
+
+add_boolean_config() {
+    key="$1"
+    flag="$2"
+    value="$(get_config "$key")"
+
+    case "$value" in
+        true|false)
+            args+=("$flag=$value")
+            ;;
+        "")
+            ;;
+        *)
+            echo "Invalid boolean value for $key: $value" >&2
+            exit 2
+            ;;
+    esac
+}
+
+site="$(get_config site)"
+if [ -z "$site" ]; then
+    site="https://forum.snapcraft.io"
+fi
+args+=("--site" "$site")
+
+add_boolean_config read-only --read_only
+add_boolean_config allow-writes --allow_writes
+add_boolean_config show-emails --show_emails
+
+add_value_config auth-pairs --auth_pairs
+add_value_config concurrency --concurrency
+add_value_config default-search --default-search
+add_value_config log-level --log_level
+add_value_config max-read-length --max-read-length
+add_value_config timeout-ms --timeout_ms
+add_value_config tools-mode --tools_mode
+
+for arg in "$@"; do
+    args+=("$arg")
+done
+
+exec "$SNAP/node/bin/node" "$SNAP/discourse-mcp/dist/index.js" "${args[@]}"
