@@ -57,4 +57,4 @@ for arg in "$@"; do
     args+=("$arg")
 done
 
-exec "$SNAP/node/bin/node" "$SNAP/discourse-mcp/dist/index.js" "${args[@]}"
+exec "$SNAP/bin/node" "$SNAP/lib/node_modules/@discourse/mcp/dist/index.js" "${args[@]}"

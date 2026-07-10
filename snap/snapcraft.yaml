@@ -29,42 +29,20 @@ apps:
 
 parts:
   discourse-mcp:
-    plugin: nil
-    source: https://github.com/discourse/discourse-mcp.git
-    source-type: git
-    build-packages:
-      - ca-certificates
-      - curl
-      - xz-utils
+    plugin: npm
+    source: https://registry.npmjs.org/@discourse/mcp/-/mcp-0.2.9.tgz
+    source-type: tar
+    npm-include-node: true
+    npm-node-version: "24.11.1"
     stage:
-      - bin/discourse-mcp-wrapper
-      - discourse-mcp/**
-      - node/**
-    override-build: |
-      case "$CRAFT_ARCH_BUILD_FOR" in
-        amd64) node_arch=x64 ;;
-        arm64) node_arch=arm64 ;;
-        armhf) node_arch=armv7l ;;
-        ppc64el) node_arch=ppc64le ;;
-        s390x) node_arch=s390x ;;
-        *) echo "Unsupported architecture: $CRAFT_ARCH_BUILD_FOR" >&2; exit 1 ;;
-      esac
+      - bin/**
+      - lib/**
+    override-pull: |
+      craftctl default
+      craftctl set version="$(sed -nE 's/.*"version": "([^"]+)".*/\1/p' package.json | head -n1)"
 
-      node_version=24.11.1
-      node_dir="node-v${node_version}-linux-${node_arch}"
-      curl -fsSLO "https://nodejs.org/dist/v${node_version}/${node_dir}.tar.xz"
-      tar -xJf "${node_dir}.tar.xz"
-      mkdir -p "$CRAFT_PART_INSTALL/node"
-      cp -a "${node_dir}/." "$CRAFT_PART_INSTALL/node/"
-
-      export PATH="$CRAFT_PART_INSTALL/node/bin:$PATH"
-      corepack enable
-      corepack prepare pnpm@10.14.0 --activate
-      pnpm install --frozen-lockfile
-      pnpm build
-      pnpm prune --prod
-      craftctl set version="$(node -p "require('./package.json').version")"
-
-      mkdir -p "$CRAFT_PART_INSTALL/discourse-mcp"
-      cp -a dist node_modules package.json README.md LICENSE "$CRAFT_PART_INSTALL/discourse-mcp/"
-      install -Dm755 "$CRAFT_PROJECT_DIR/snap/local/discourse-mcp-wrapper" "$CRAFT_PART_INSTALL/bin/discourse-mcp-wrapper"
+  wrapper:
+    plugin: dump
+    source: snap/local
+    organize:
+      discourse-mcp-wrapper: bin/discourse-mcp-wrapper
