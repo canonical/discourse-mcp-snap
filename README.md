@@ -4,13 +4,23 @@ Strict snap packaging for [discourse/discourse-mcp](https://github.com/discourse
 
 The snap defaults to `https://forum.snapcraft.io` and uses upstream's read-only mode unless configured otherwise.
 
-## Build
+Snap Store page: <https://snapcraft.io/discourse-mcp>
+
+## Install
+
+Install from the edge channel:
+
+```bash
+sudo snap install --edge discourse-mcp
+```
+
+## Build and Install Locally
 
 ```bash
 snapcraft
 ```
 
-## Install Locally
+Install a locally built snap:
 
 ```bash
 sudo snap install --dangerous discourse-mcp_*.snap
