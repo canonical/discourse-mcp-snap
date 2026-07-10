@@ -1,6 +1,6 @@
 name: discourse-mcp
 base: core24
-version: 0.2.9
+adopt-info: discourse-mcp
 title: Discourse MCP
 summary: Discourse MCP stdio server
 description: |
@@ -10,6 +10,9 @@ description: |
   This snap is strictly confined. Runtime configuration is read from snap
   configuration with snap set; profile files from home directories are not
   supported.
+
+  Snap packaging is maintained at:
+  https://github.com/canonical/discourse-mcp-snap
 license: MIT
 source-code: https://github.com/discourse/discourse-mcp
 website: https://github.com/discourse/discourse-mcp
@@ -60,6 +63,7 @@ parts:
       pnpm install --frozen-lockfile
       pnpm build
       pnpm prune --prod
+      craftctl set version="$(node -p "require('./package.json').version")"
 
       mkdir -p "$CRAFT_PART_INSTALL/discourse-mcp"
       cp -a dist node_modules package.json README.md LICENSE "$CRAFT_PART_INSTALL/discourse-mcp/"
