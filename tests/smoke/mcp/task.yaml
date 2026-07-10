@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: Canonical Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+summary: Verify the discourse-mcp snap can serve MCP requests
+
+execute: |
+    coproc MCP { discourse-mcp --log_level silent --tools_mode discourse_api_only; }
+
+    printf '%s\n' \
+        '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"spread-smoke-test","version":"1.0.0"}}}' \
+        '{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}' \
+        '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"discourse_search","arguments":{"query":"snapcraft","max_results":1}}}' \
+        >&${MCP[1]}
+
+    deadline=$((SECONDS+30))
+    found_initialize=false
+    found_search=false
+
+    while [ $SECONDS -lt $deadline ]; do
+        if IFS= read -r -t 1 line <&${MCP[0]}; then
+            echo "$line"
+            case "$line" in
+                *'"id":1'*) found_initialize=true ;;
+                *'"id":2'*'"results"'*) found_search=true; break ;;
+            esac
+        fi
+    done
+
+    kill "$MCP_PID" 2>/dev/null || true
+
+    [ "$found_initialize" = true ]
+    [ "$found_search" = true ]
