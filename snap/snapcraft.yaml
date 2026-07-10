@@ -14,7 +14,7 @@ description: |
   Snap packaging is maintained at:
   https://github.com/canonical/discourse-mcp-snap
 license: MIT
-source-code: https://github.com/discourse/discourse-mcp
+source-code: https://github.com/canonical/discourse-mcp-snap
 website: https://github.com/discourse/discourse-mcp
 issues: https://github.com/discourse/discourse-mcp/issues
 contact: https://github.com/discourse/discourse-mcp/issues
