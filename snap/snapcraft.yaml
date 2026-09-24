@@ -30,10 +30,10 @@ apps:
 parts:
   discourse-mcp:
     plugin: npm
-    source: https://registry.npmjs.org/@discourse/mcp/-/mcp-0.2.9.tgz
+    source: https://registry.npmjs.org/@discourse/mcp/-/mcp-0.3.1.tgz
     source-type: tar
     npm-include-node: true
-    npm-node-version: "24.11.1"
+    npm-node-version: "24.21.0"
     stage:
       - bin/**
       - lib/**
